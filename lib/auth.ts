@@ -11,7 +11,11 @@ import { redirect } from "next/navigation";
 export const COOKIE_NAME = "crm_session";
 
 function secret(): string {
-  return process.env.SESSION_SECRET || "dev-secret-change-me";
+  const value = process.env.SESSION_SECRET;
+  if (!value && process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET must be configured in production");
+  }
+  return value || "dev-secret-change-me";
 }
 
 // Cookie qiymati - APP_PASSWORD ustidan HMAC. Uni to'g'ri parolsiz yasab

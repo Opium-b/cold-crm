@@ -36,7 +36,7 @@ cp .env.example .env.local
 | `TELEGRAM_BOT_TOKEN`  | @BotFather bergan token (ixtiyoriy — bo'sh bo'lsa xabar yuborilmaydi) |
 | `TELEGRAM_CHAT_ID`    | Jamoa guruhi chat ID si (manfiy son bo'lishi mumkin)              |
 | `DATABASE_PATH`       | DB fayli yo'li (default `./data/crm.db`)                          |
-| `CRON_SECRET`         | (ixtiyoriy) `/api/cron/reminders` ni himoyalash uchun sir         |
+| `CRON_SECRET`         | `/api/cron/reminders` uchun Bearer token                          |
 | `DISABLE_INTERNAL_CRON` | `1` bo'lsa ichki scheduler o'chadi (serverless muhitda kerak)   |
 
 > **Muhim:** `.env.local` ni o'zgartirgandan keyin `next build` ni qayta ishga
@@ -116,7 +116,7 @@ Ikki usul birga ishlaydi:
 1. **Ichki scheduler** — server ishga tushganda har 60 soniyada vaqti kelgan
    eslatmalarni yuboradi (lokal/VPS uchun; `instrumentation.ts`).
 2. **API route** — `GET /api/cron/reminders` ni tashqi cron bilan chaqirish
-   mumkin. `CRON_SECRET` o'rnatilgan bo'lsa `?secret=...` talab qilinadi.
+   mumkin. `Authorization: Bearer <CRON_SECRET>` header'i talab qilinadi.
 
 > Serverless muhitda (masalan Vercel) ichki scheduler ishlamaydi —
 > `DISABLE_INTERNAL_CRON=1` qo'yib, cron route'ni tashqi cron bilan chaqiring.

@@ -4,7 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 // versiyasi bilan bir xil natija beradi.
 async function expectedTokenEdge(): Promise<string> {
   const pw = process.env.APP_PASSWORD || "";
-  const secret = process.env.SESSION_SECRET || "dev-secret-change-me";
+  const secret = process.env.SESSION_SECRET;
+  if (!secret && process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET must be configured in production");
+  }
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
@@ -24,9 +27,11 @@ export async function middleware(req: NextRequest) {
 
   // Ochiq yo'llar: login, login API, cron (o'z sirlarini o'zi tekshiradi)
   if (
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/api/login") ||
-    pathname.startsWith("/api/cron")
+    pathname === "/login" ||
+    pathname.startsWith("/login/") ||
+    pathname === "/api/login" ||
+    pathname.startsWith("/api/login/") ||
+    pathname === "/api/cron/reminders"
   ) {
     return NextResponse.next();
   }

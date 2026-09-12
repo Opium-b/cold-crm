@@ -5,7 +5,7 @@ import { processReminders } from "@/lib/reminders";
 // Agar .env da CRON_SECRET bo'lsa, ?secret=... mos kelishi kerak.
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
-  if (secret && req.nextUrl.searchParams.get("secret") !== secret) {
+  if (!secret || req.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
   const result = await processReminders();
