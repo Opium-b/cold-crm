@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cold CRM - Technical Project Explanation</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm; }
+  :root { color: #172033; --blue: #1d4ed8; --muted: #526173; --line: #d9e1ec; --soft: #f3f6fa; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.48; color: var(--color, #172033); font-size: 10.5pt; }
+  h1 { font-size: 28pt; line-height: 1.08; margin: 0 0 8pt; color: #102a56; }
+  h2 { font-size: 18pt; margin: 22pt 0 8pt; padding-bottom: 4pt; border-bottom: 2px solid var(--blue); color: #123b78; page-break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 14pt 0 4pt; color: #173f76; page-break-after: avoid; }
+  p { margin: 5pt 0; }
+  ul, ol { margin-top: 4pt; padding-left: 20pt; }
+  li { margin: 2pt 0; }
+  code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 9pt; background: #eef2f7; padding: 1pt 3pt; border-radius: 3pt; }
+  pre { background: #182334; color: #eef5ff; padding: 9pt 11pt; border-radius: 5pt; white-space: pre-wrap; font-size: 8.5pt; page-break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 7pt 0 11pt; font-size: 9.2pt; page-break-inside: avoid; }
+  th { text-align: left; background: #e8f0fc; color: #153d73; }
+  th, td { border: 1px solid var(--line); padding: 5pt 6pt; vertical-align: top; }
+  .cover { min-height: 245mm; display: flex; flex-direction: column; justify-content: center; page-break-after: always; }
+  .eyebrow { color: var(--blue); font-size: 11pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+  .subtitle { font-size: 15pt; color: var(--muted); max-width: 125mm; }
+  .meta { margin-top: 28pt; color: var(--muted); }
+  .box { background: var(--soft); border-left: 4px solid var(--blue); padding: 8pt 10pt; margin: 8pt 0; page-break-inside: avoid; }
+  .warning { background: #fff7e6; border-left-color: #d97706; }
+  .small { color: var(--muted); font-size: 9pt; }
+  .page-break { page-break-before: always; }
+  .toc li { margin: 4pt 0; }
+  .flow { font-family: "SFMono-Regular", Consolas, monospace; background: #f6f8fb; border: 1px solid var(--line); padding: 9pt; white-space: pre-wrap; }
+  .qa h3 { margin-top: 10pt; }
+  .footer-note { margin-top: 20pt; color: var(--muted); font-size: 9pt; }
+</style>
+</head>
+<body>
+<section class="cover">
+  <div class="eyebrow">Examiner Study Guide</div>
+  <h1>Cold CRM</h1>
+  <p class="subtitle">Complete technical explanation of the frontend, backend, database, authentication, integrations, scheduling, and deployment architecture.</p>
+  <p class="meta"><strong>Stack:</strong> Next.js 15, React 19, TypeScript, Tailwind CSS 4, Node.js, SQLite, SheetJS, Telegram Bot API</p>
+  <p class="meta"><strong>Repository:</strong> cold-crm</p>
+</section>
+
+<h2>1. Project Overview</h2>
+<p>Cold CRM is an internal customer relationship management system for cold calling. A salesperson can manage potential customers, call them in a controlled order, record call results, schedule follow-ups and meetings, import leads from Excel or CSV, and receive Telegram notifications.</p>
+<div class="box"><strong>One-sentence description:</strong> Cold CRM is a full-stack Next.js application using React and Tailwind CSS for the interface, Next.js server features for the backend, SQLite with direct SQL for data storage, HMAC cookie authentication, Telegram notifications, and a server-side reminder scheduler.</div>
+
+<h2>2. Technology Stack</h2>
+<table><tr><th>Technology</th><th>Role in this project</th></tr>
+<tr><td>Next.js 15</td><td>Full-stack React framework, routing, server rendering, API endpoints, middleware, Server Actions, and production builds.</td></tr>
+<tr><td>React 19</td><td>Builds reusable interactive UI components.</td></tr>
+<tr><td>TypeScript</td><td>Static typing for leads, calls, outcomes, groups, and function inputs.</td></tr>
+<tr><td>Tailwind CSS 4</td><td>Utility classes used to style layouts, buttons, tables, colors, spacing, and responsive behavior.</td></tr>
+<tr><td>Node.js</td><td>Runs the server and provides built-in modules such as <code>node:sqlite</code>, <code>crypto</code>, <code>fs</code>, and <code>path</code>.</td></tr>
+<tr><td>SQLite</td><td>Relational database stored in one local file; no separate database server is required.</td></tr>
+<tr><td>SheetJS / xlsx</td><td>Parses Excel and CSV files for importing leads.</td></tr>
+<tr><td>Telegram Bot API</td><td>Sends notifications using ordinary HTTP <code>fetch</code>; no Telegram npm library is needed.</td></tr>
+</table>
+
+<h2>3. Project Structure and Routing</h2>
+<p>Next.js App Router uses the filesystem as the routing system.</p>
+<table><tr><th>File or folder</th><th>Meaning</th></tr>
+<tr><td><code>app/page.tsx</code></td><td>Dashboard at <code>/</code>.</td></tr>
+<tr><td><code>app/login/page.tsx</code></td><td>Login page at <code>/login</code>.</td></tr>
+<tr><td><code>app/leads/page.tsx</code></td><td>Lead list at <code>/leads</code>.</td></tr>
+<tr><td><code>app/leads/[id]/page.tsx</code></td><td>Dynamic lead details page, for example <code>/leads/25</code>.</td></tr>
+<tr><td><code>app/api/*/route.ts</code></td><td>HTTP API Route Handlers.</td></tr>
+<tr><td><code>lib/</code></td><td>Reusable backend logic for database, authentication, leads, time, phones, reminders, statistics, and Telegram.</td></tr>
+</table>
+
+<h2>4. Frontend Architecture</h2>
+<h3>Server Components</h3>
+<p>Files in the <code>app</code> directory are Server Components by default. They execute on the server and can safely access the database and authentication cookies. The dashboard, lead list, meeting list, and detail pages query SQLite on the server before HTML is sent to the browser.</p>
+<h3>Client Components</h3>
+<p>A file containing <code>"use client"</code> runs in the browser. Client Components are necessary when the UI needs state, click handlers, or browser APIs.</p>
+<ul><li><code>CallScreen.tsx</code> uses React state for the current lead, modal dialogs, loading state, history visibility, and clipboard feedback.</li><li><code>ImportClient.tsx</code> reads files in the browser, previews rows, and sends the final data to the API.</li><li><code>NavBar.tsx</code> uses <code>usePathname()</code> to highlight the active navigation link.</li></ul>
+<h3>Frontend pages</h3>
+<ul><li><strong>Dashboard:</strong> statistics, funnel, upcoming meetings, and start-call button.</li><li><strong>Call:</strong> lead card, phone action, call script, history, and outcome controls.</li><li><strong>Leads:</strong> searchable and filterable lead table.</li><li><strong>Lead detail:</strong> editing, call history, status, meetings, and reminders.</li><li><strong>Meetings:</strong> complete, cancel, or reschedule meetings.</li><li><strong>Import:</strong> upload, map columns, preview, and import spreadsheet data.</li></ul>
+
+<h2>5. Backend Architecture</h2>
+<p>The backend is implemented inside the same Next.js project. There is no separate Express server.</p>
+<h3>Route Handlers</h3>
+<p>A <code>route.ts</code> file defines HTTP methods such as <code>GET</code> and <code>POST</code>. These handlers validate the request, check authentication, call business logic, and return a JSON or redirect response.</p>
+<h3>Server Actions</h3>
+<p>Functions marked with <code>"use server"</code> execute on the server and can be connected directly to HTML forms. The project uses them for creating and updating leads, adding reminders, changing status, and updating meetings.</p>
+<h3>Business logic</h3>
+<p>The main business logic is in <code>lib/leads.ts</code>. The key function is <code>recordOutcome()</code>. It coordinates the call record, lead status, next action, meetings, reminders, and Telegram notifications.</p>
+
+<h2>6. API Endpoint Reference</h2>
+<table><tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr>
+<tr><td><code>/api/login</code></td><td>POST</td><td>Validates the password and creates the session cookie.</td></tr>
+<tr><td><code>/api/logout</code></td><td>POST</td><td>Expires the session cookie.</td></tr>
+<tr><td><code>/api/call/next</code></td><td>GET</td><td>Returns the next lead in the calling queue.</td></tr>
+<tr><td><code>/api/call/outcome</code></td><td>POST</td><td>Records a result and returns the next lead.</td></tr>
+<tr><td><code>/api/import</code></td><td>POST</td><td>Validates and inserts imported lead rows.</td></tr>
+<tr><td><code>/api/cron/reminders</code></td><td>GET</td><td>Processes reminders that are due.</td></tr>
+</table>
+
+<h2>7. Database and SQL</h2>
+<p>The database is SQLite, created by <code>lib/db.ts</code>. On startup, the application creates the database directory, opens the file, enables SQLite options, and runs the schema creation statements.</p>
+<h3>Tables</h3>
+<table><tr><th>Table</th><th>Purpose</th></tr>
+<tr><td><code>leads</code></td><td>Stores customers, contact details, group, status, ratings, and next action.</td></tr>
+<tr><td><code>calls</code></td><td>Stores every call attempt and its result.</td></tr>
+<tr><td><code>meetings</code></td><td>Stores planned meetings, location, notes, and meeting status.</td></tr>
+<tr><td><code>reminders</code></td><td>Stores future follow-ups and meeting reminders.</td></tr>
+</table>
+<h3>Relational concepts used</h3>
+<ul><li><strong>Primary key:</strong> uniquely identifies each row, for example <code>leads.id</code>.</li><li><strong>Foreign key:</strong> connects calls, meetings, and reminders to a lead.</li><li><strong>Unique constraint:</strong> prevents duplicate main phone numbers.</li><li><strong>Check constraint:</strong> restricts statuses and groups to valid values.</li><li><strong>Indexes:</strong> speed up status, queue, call-history, and reminder queries.</li><li><strong>JOIN:</strong> combines related rows, such as meetings with lead names.</li></ul>
+<h3>Prepared statements</h3>
+<p>The project uses placeholders such as <code>WHERE id = ?</code> and passes values separately. This reduces SQL injection risk because user input is not concatenated directly into SQL strings.</p>
+<h3>SQLite WAL</h3>
+<p><code>PRAGMA journal_mode = WAL</code> enables Write-Ahead Logging, which improves read/write behavior. <code>PRAGMA foreign_keys = ON</code> activates foreign-key enforcement.</p>
+
+<h2>8. Authentication and Middleware</h2>
+<p>The application uses one shared password from <code>APP_PASSWORD</code> in <code>.env.local</code>. The password is not stored in SQLite.</p>
+<ol><li>The user submits the password to <code>POST /api/login</code>.</li><li><code>checkPassword()</code> compares it with the environment value.</li><li>The server creates an HMAC-SHA256 token based on the password and session secret.</li><li>The token is stored in an HTTP cookie named <code>crm_session</code>.</li><li>Middleware checks this cookie on later requests.</li></ol>
+<p>Protected page requests redirect to <code>/login</code>. Protected API requests receive HTTP status <code>401</code>. Logout removes the cookie.</p>
+<div class="box warning"><strong>Limitations:</strong> this is a small internal authentication system. It has one shared user, no roles, no password reset, and no individual accounts. A production multi-user system would normally use a full identity provider or a users table with hashed passwords.</div>
+
+<h2>9. Calling Queue and Business Rules</h2>
+<p>The queue algorithm is in <code>lib/leads.ts</code>.</p>
+<ol><li>Due follow-up leads are selected first.</li><li>The oldest due follow-up is selected first.</li><li>If there are no due follow-ups, new leads are selected.</li><li>New leads are prioritized by group A, B, C, then D.</li><li>Within a group, older leads are selected first.</li></ol>
+<table><tr><th>Outcome</th><th>System behavior</th></tr>
+<tr><td>Did not answer</td><td>Schedules tomorrow; after three consecutive failures, schedules seven days later.</td></tr>
+<tr><td>Call later</td><td>Stores selected time and creates a reminder.</td></tr>
+<tr><td>Interested</td><td>Schedules tomorrow's follow-up and sends Telegram.</td></tr>
+<tr><td>Meeting</td><td>Creates a meeting, two reminders, and a Telegram message.</td></tr>
+<tr><td>Rejected</td><td>Stores the reason and schedules another attempt after 90 days.</td></tr>
+<tr><td>Sold</td><td>Marks the lead as sold and sends Telegram.</td></tr>
+<tr><td>Wrong number</td><td>Removes the lead from the active queue.</td></tr>
+</table>
+
+<h2>10. Reminder System</h2>
+<p>There are two ways to process reminders, but both call the same function, <code>processReminders()</code>.</p>
+<ul><li><strong>Internal scheduler:</strong> Node.js starts a <code>setInterval</code> that checks every 60 seconds.</li><li><strong>External cron:</strong> a service can call <code>GET /api/cron/reminders</code>.</li></ul>
+<p>Each reminder has a <code>sent</code> flag. Due unsent reminders are selected, processed, and then marked as sent. Rejected leads are returned to the queue; call and meeting reminders send Telegram messages.</p>
+
+<h2>11. Telegram Integration</h2>
+<p>The project uses the Telegram Bot HTTP API directly with <code>fetch</code>. It sends messages for interested leads, meetings, sales, and reminders.</p>
+<p>Configuration uses:</p>
+<pre>TELEGRAM_BOT_TOKEN=...
+TELEGRAM_CHAT_ID=...</pre>
+<p>If these variables are empty, the CRM continues working and only logs a warning. Messages use Telegram HTML formatting, so user text is escaped before being inserted into the message.</p>
+
+<h2>12. Import System</h2>
+<p>The browser uses SheetJS to read <code>.xlsx</code>, <code>.xls</code>, and <code>.csv</code> files. The first row is treated as headers. The application guesses columns by keywords such as “name”, “phone”, “address”, and their Uzbek or Russian equivalents.</p>
+<p>After preview and manual mapping, the client sends JSON to <code>/api/import</code>. The backend then normalizes phone numbers, ignores rows without phones, ignores duplicate phone numbers, and returns an import report.</p>
+
+<h2>13. Time and Phone Utilities</h2>
+<h3>Time</h3>
+<p>Times are stored in UTC in SQLite and displayed in Asia/Tashkent time. This prevents server timezone differences from changing the meaning of a meeting or follow-up.</p>
+<h3>Phone numbers</h3>
+<p>Phone numbers are normalized into the Uzbek format <code>+998XXXXXXXXX</code>. The system accepts common forms such as a nine-digit number, a leading zero, or a number containing spaces and punctuation.</p>
+
+<h2>14. Is There WebSocket or Realtime Technology?</h2>
+<p>No. The project does not use WebSockets, Socket.IO, Server-Sent Events, GraphQL subscriptions, or Firebase realtime listeners.</p>
+<div class="flow">User clicks an outcome
+        |
+        v
+Browser sends POST /api/call/outcome
+        |
+        v
+Server updates SQLite and creates related records
+        |
+        v
+Server returns JSON containing the next lead
+        |
+        v
+React calls setData() and updates the screen</div>
+<p>This is normal HTTP request-response communication. The reminder timer runs on the server, but it does not push data into an open browser tab.</p>
+
+<h2>15. Configuration and Running</h2>
+<p>Important scripts in <code>package.json</code>:</p>
+<pre>npm run dev       # development server with hot reload
+npm run build     # optimized production build
+npm start         # production server
+npm run seed      # inserts sample leads</pre>
+<p>Important environment variables include <code>APP_PASSWORD</code>, <code>SESSION_SECRET</code>, <code>DATABASE_PATH</code>, Telegram variables, <code>CRON_SECRET</code>, and <code>DISABLE_INTERNAL_CRON</code>.</p>
+<p>The project is designed for a continuously running Node.js machine or VPS because SQLite is local and the internal scheduler needs a persistent process.</p>
+
+<h2>16. Likely Examiner Questions</h2>
+<div class="qa">
+<h3>Why did you choose Next.js?</h3><p>It provides React UI and backend features in one framework: routing, server rendering, API routes, middleware, Server Actions, and production builds.</p>
+<h3>Why SQLite?</h3><p>The CRM is small and internal. SQLite is fast, simple, local, and does not require a separate database server.</p>
+<h3>Why TypeScript?</h3><p>It catches invalid statuses, missing fields, and incorrect function arguments before runtime.</p>
+<h3>Why are some components Client Components?</h3><p>The call and import screens need browser state, click handlers, file APIs, clipboard access, and client-side fetch requests.</p>
+<h3>How is authentication implemented?</h3><p>A shared environment password is checked, then a signed HMAC token is stored in a cookie. Middleware checks the cookie on later requests.</p>
+<h3>How is SQL injection reduced?</h3><p>Prepared statements use placeholders instead of concatenating untrusted values into SQL.</p>
+<h3>How are duplicate leads prevented?</h3><p>The phone column has a UNIQUE constraint, and import logic checks existing numbers before inserting.</p>
+<h3>How are reminders executed?</h3><p>An internal Node.js timer checks every 60 seconds, and an external cron endpoint can call the same reminder-processing function.</p>
+<h3>Is the application realtime?</h3><p>No. It uses regular HTTP requests. After an action, the server returns updated data and React updates the page.</p>
+<h3>Why store times in UTC?</h3><p>UTC is consistent on the server and in the database. The UI converts UTC to Asia/Tashkent for users.</p>
+<h3>What happens after a call result?</h3><p>The call is saved, lead status is updated, follow-up or meeting records may be created, Telegram may be notified, and the next lead is returned.</p>
+<h3>What is the core business function?</h3><p><code>recordOutcome()</code> in <code>lib/leads.ts</code>, because it coordinates call history, statuses, reminders, meetings, and notifications.</p>
+<h3>What are the limitations?</h3><p>There is one shared login, no user roles, no WebSockets, no automated test suite, and SQLite is not ideal for many concurrent users or multiple application servers.</p>
+</div>
+
+<h2>17. Final Memorization Summary</h2>
+<div class="box"><strong>Memorize this:</strong> “Cold CRM is a full-stack Next.js 15 application. The frontend uses React, TypeScript, and Tailwind CSS. The backend uses Next.js Server Components, API Route Handlers, Server Actions, middleware, and Node.js. Data is stored in SQLite using direct prepared SQL statements. Authentication uses an environment password and an HMAC-signed cookie. Excel files are parsed with SheetJS. Telegram notifications use the Bot API through fetch. Reminders run through a Node.js interval or an external cron endpoint. The app does not use WebSockets; it uses normal HTTP requests.”</div>
+<p class="footer-note">Prepared from the Cold CRM source code and project configuration. Key implementation files include app/, lib/, middleware.ts, instrumentation.ts, package.json, and tsconfig.json.</p>
+</body>
+</html>
