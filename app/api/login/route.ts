@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkPassword, expectedToken, COOKIE_NAME } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
+  if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
+    return NextResponse.json(
+      { error: "Server authentication is not configured: SESSION_SECRET is missing" },
+      { status: 503 }
+    );
+  }
   const form = await req.formData();
   const password = String(form.get("password") || "");
 

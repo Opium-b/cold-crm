@@ -36,6 +36,16 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
+    if (pathname.startsWith("/api")) {
+      return NextResponse.json(
+        { error: "Server authentication is not configured" },
+        { status: 503 }
+      );
+    }
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
   const token = req.cookies.get(COOKIE_NAME)?.value;
   if (token && token === (await expectedTokenEdge())) {
     return NextResponse.next();

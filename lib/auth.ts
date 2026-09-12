@@ -35,6 +35,9 @@ export function checkPassword(input: string): boolean {
 
 // Server Component/Route ichida: kirmagan bo'lsa /login ga yo'naltiradi.
 export async function requireAuth(): Promise<void> {
+  if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
+    redirect("/login");
+  }
   const store = await cookies();
   const val = store.get(COOKIE_NAME)?.value;
   if (val !== expectedToken()) redirect("/login");
@@ -42,6 +45,9 @@ export async function requireAuth(): Promise<void> {
 
 // API route'lar uchun: true/false qaytaradi (redirect qilmaydi).
 export async function isAuthed(): Promise<boolean> {
+  if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
+    return false;
+  }
   const store = await cookies();
   return store.get(COOKIE_NAME)?.value === expectedToken();
 }
